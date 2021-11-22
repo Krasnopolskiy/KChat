@@ -1,6 +1,7 @@
 val ktorVersion: String by project
 val kotlinVersion: String by project
 val logbackVersion: String by project
+val kmongoVersion: String by project
 
 plugins {
     application
@@ -27,7 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
+    implementation("org.litote.kmongo:kmongo-coroutine-serialization:$kmongoVersion")
 }
 
 tasks.create<com.github.gradle.node.npm.task.NpmTask>("buildWebApp") {
