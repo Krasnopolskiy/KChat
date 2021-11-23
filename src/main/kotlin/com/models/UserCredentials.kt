@@ -3,4 +3,4 @@ package com.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-class AnonymousUser(val name: String) : UserContext()
+data class UserCredentials(val name: String, val hash: ByteArray) : Model()

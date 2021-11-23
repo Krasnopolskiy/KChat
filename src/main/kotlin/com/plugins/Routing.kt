@@ -8,7 +8,7 @@ fun Application.configureRouting() {
     routing {
         get("/") { indexView(this) }
         post("/register") { registrationView(this) }
-        post("/register/anonymous") { anonymousRegistrationView(this) }
+        post("/login") { loginView(this) }
         static("/static") { resources("static") }
     }
 }
