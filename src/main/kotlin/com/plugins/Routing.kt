@@ -11,9 +11,6 @@ fun Application.configureRouting() {
         get("/") { indexView(this) }
         post("/register") { registrationView(this) }
         post("/login") { loginView(this) }
-        authenticate("auth-session") {
-            get("/secure") { call.respondText("Welcome, agent!") }
-        }
         static("/static") { resources("static") }
     }
 }

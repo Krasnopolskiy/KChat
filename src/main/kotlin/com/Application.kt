@@ -30,7 +30,9 @@ fun main() {
         install(ContentNegotiation) {
             json()
         }
+
         install(Sessions) { cookie<UserSession>("session") }
+
         install(Authentication) {
             session<UserSession>("auth-session") {
                 validate { validateSession(it) }
