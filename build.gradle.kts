@@ -2,11 +2,12 @@ val ktorVersion: String by project
 val kotlinVersion: String by project
 val logbackVersion: String by project
 val kmongoVersion: String by project
+val serializationVersion: String by project
 
 plugins {
     application
     kotlin("jvm") version "1.6.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.0"
+    kotlin("plugin.serialization") version "1.6.0"
     id("com.github.node-gradle.node") version "3.0.1"
 }
 
