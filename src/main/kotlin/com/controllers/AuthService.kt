@@ -8,7 +8,6 @@ import org.litote.kmongo.reactivestreams.KMongo
 import java.security.MessageDigest
 
 object AuthService {
-    private val jwt = JWTService()
     private val db = KMongo.createClient().coroutine.getDatabase("KChat")
     private val hashAlgorithm = MessageDigest.getInstance("SHA-256")
 
@@ -30,7 +29,7 @@ object AuthService {
     suspend fun loginUser(name: String, password: String): String {
         val credentials = db.getCollection<UserCredentials>()
         credentials.findOne(UserCredentials::name eq name)?.also {
-            if (checkPassword(password, it.hash)) return jwt.generateToken(name)
+            if (checkPassword(password, it.hash)) return JWTService.generateToken(name)
         }
         throw InvalidCredentialsException()
     }

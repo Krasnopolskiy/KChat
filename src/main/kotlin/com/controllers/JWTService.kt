@@ -3,12 +3,11 @@ package com.controllers
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import java.security.MessageDigest
 import java.util.*
 
-class JWTService {
-    private val secret = "change me"
-    private val issuer = "GigaNigga"
+object JWTService {
+    private const val secret = "change me"
+    private const val issuer = "GigaNigga"
     private val algorithm = Algorithm.HMAC512(secret)
 
     val verifier: JWTVerifier = JWT
@@ -22,7 +21,7 @@ class JWTService {
     fun generateToken(name: String): String = JWT.create()
         .withSubject("Authentication")
         .withIssuer(issuer)
-        .withClaim("userId", name)
+        .withClaim("user", name)
         .withExpiresAt(expiresAt())
         .sign(algorithm)
 }
