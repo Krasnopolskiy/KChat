@@ -18,9 +18,16 @@ object UserController {
 
     suspend fun retrieveUser(name: String) = users.findOne(User::name eq name)
 
-    suspend fun addRoom(user: User, room: Room) {
-        user.rooms.add(room.name)
-        users.updateOne(User::name eq user.name, user)
+    suspend fun addRoom(userName: String, roomName: String) {
+        val user = retrieveUser(userName)!!
+        user.rooms += roomName
+        users.updateOne(User::name eq userName, user)
+    }
+
+    suspend fun removeRoom(userName: String, roomName: String) {
+        val user = retrieveUser(userName)!!
+        user.rooms -= roomName
+        users.updateOne(User::name eq userName, user)
     }
 
     suspend fun registerUser(name: String, password: String) {

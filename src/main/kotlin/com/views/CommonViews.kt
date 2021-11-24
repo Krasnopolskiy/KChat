@@ -14,30 +14,24 @@ import kotlinx.serialization.Serializable
 @Serializable
 class Credentials(val name: String, val password: String)
 
-suspend fun indexView(context: PipelineContext<Unit, ApplicationCall>) = context.call.respondText(
-    context::class.java.classLoader.getResource("index.html")!!.readText(),
-    ContentType.Text.Html
-)
-
-suspend fun registrationView(context: PipelineContext<Unit, ApplicationCall>) {
-    try {
-        val credentials = context.call.receiveOrNull<Credentials>() ?: throw InvalidRequestData()
-        UserController.registerUser(credentials.name, credentials.password)
-        val token = UserController.loginUser(credentials.name, credentials.password)
-        context.call.sessions.set(UserSession(token))
-        context.call.respond(mapOf("token" to token))
-    } catch (e: Exception) {
-        context.call.respond(HttpStatusCode.BadRequest, e.message ?: "Something went wrong")
-    }
+suspend fun indexView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
+    context.call.respondText(
+        context::class.java.classLoader.getResource("index.html")!!.readText(),
+        ContentType.Text.Html
+    )
 }
 
-suspend fun loginView(context: PipelineContext<Unit, ApplicationCall>) {
-    try {
-        val credentials = context.call.receiveOrNull<Credentials>() ?: throw InvalidRequestData()
-        val token = UserController.loginUser(credentials.name, credentials.password)
-        context.call.sessions.set(UserSession(token))
-        context.call.respond(mapOf("token" to token))
-    } catch (e: Exception) {
-        context.call.respond(HttpStatusCode.BadRequest, e.message ?: "Something went wrong")
-    }
+suspend fun registrationView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
+    val credentials = context.call.receiveOrNull<Credentials>() ?: throw InvalidRequestData()
+    UserController.registerUser(credentials.name, credentials.password)
+    val token = UserController.loginUser(credentials.name, credentials.password)
+    context.call.sessions.set(UserSession(token))
+    context.call.respond(mapOf("token" to token))
+}
+
+suspend fun loginView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
+    val credentials = context.call.receiveOrNull<Credentials>() ?: throw InvalidRequestData()
+    val token = UserController.loginUser(credentials.name, credentials.password)
+    context.call.sessions.set(UserSession(token))
+    context.call.respond(mapOf("token" to token))
 }

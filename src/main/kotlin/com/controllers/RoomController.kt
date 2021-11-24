@@ -1,11 +1,7 @@
 package com.controllers
 
 import com.models.Room
-import com.models.User
-import com.utils.InvalidCodeException
-import com.utils.RoomNameIsNotFreeException
-import com.utils.UserNotInRoomException
-import com.utils.UserWasBannedException
+import com.utils.*
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.eq
 import org.litote.kmongo.reactivestreams.KMongo
@@ -14,7 +10,7 @@ object RoomController {
     private val db = KMongo.createClient().coroutine.getDatabase("KChat")
     private val rooms = db.getCollection<Room>()
 
-    suspend fun retrieveRoom(code: String) = rooms.findOne(Room::code eq code)
+    private suspend fun retrieveRoom(code: String) = rooms.findOne(Room::code eq code)
 
     suspend fun retrieveRoom(userName: String, code: String) =
         rooms.findOne(Room::code eq code)?.apply {
@@ -22,14 +18,16 @@ object RoomController {
         }
 
     suspend fun createRoom(userName: String, roomName: String): Room {
-        if (retrieveRoom(userName, roomName) != null) throw RoomNameIsNotFreeException()
+        val code = TokenGenerator.generateHexToken(roomName.hashCode(), 3)
+        if (retrieveRoom(code) != null) throw RoomNameIsNotFreeException()
         val room = Room(userName, roomName)
         rooms.insertOne(room)
         return room
     }
 
-    private suspend fun addUser(user: User, room: Room) {
-        room.users.add(user.name)
+    private suspend fun addUser(userName: String, code: String) {
+        val room = retrieveRoom(code) ?: throw InvalidCodeException()
+        room.users += userName
         rooms.updateOne(Room::name eq room.name, room)
     }
 
@@ -37,8 +35,36 @@ object RoomController {
         val room = retrieveRoom(code)?.apply {
             if (userName in banned) throw UserWasBannedException()
         } ?: throw InvalidCodeException()
-        val user = UserController.retrieveUser(userName)!!
-        addUser(user, room)
-        UserController.addRoom(user, room)
+        addUser(userName, room.name)
+        UserController.addRoom(userName, room.name)
+    }
+
+    suspend fun banUser(userName: String, subjectName: String, code: String) {
+        val room = retrieveRoom(code) ?: throw InvalidCodeException()
+        if (userName != room.creator) throw UserHasNoRightException()
+        if (subjectName in room.users) {
+            room.users -= subjectName
+            room.banned += subjectName
+            rooms.updateOne(Room::name eq room.name, room)
+            UserController.removeRoom(subjectName, room.name)
+        }
+    }
+
+    suspend fun unbanUser(userName: String, subjectName: String, code: String) {
+        val room = retrieveRoom(code) ?: throw InvalidCodeException()
+        if (userName != room.creator) throw UserHasNoRightException()
+        if (subjectName in room.banned) {
+            room.users += subjectName
+            room.banned -= subjectName
+            rooms.updateOne(Room::name eq room.name, room)
+            UserController.addRoom(subjectName, room.name)
+        }
+    }
+
+    suspend fun deleteRoom(userName: String, code: String) {
+        val room = retrieveRoom(code) ?: throw InvalidCodeException()
+        if (userName != room.creator) throw UserHasNoRightException()
+        room.users.forEach { UserController.removeRoom(it, room.name) }
+        rooms.deleteOne(Room::name eq room.name)
     }
 }
