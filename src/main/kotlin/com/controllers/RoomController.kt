@@ -22,6 +22,7 @@ object RoomController {
         if (retrieveRoom(code) != null) throw RoomNameIsNotFreeException()
         val room = Room(userName, roomName)
         rooms.insertOne(room)
+        UserController.addRoom(userName, roomName)
         return room
     }
 
@@ -35,7 +36,7 @@ object RoomController {
         val room = retrieveRoom(code)?.apply {
             if (userName in banned) throw UserWasBannedException()
         } ?: throw InvalidCodeException()
-        addUser(userName, room.name)
+        addUser(userName, room.code)
         UserController.addRoom(userName, room.name)
     }
 

@@ -2,6 +2,7 @@ package com.views
 
 import com.UserSession
 import com.controllers.UserController
+import com.plugins.Routes
 import com.utils.InvalidRequestData
 import io.ktor.application.*
 import io.ktor.http.*
@@ -26,12 +27,17 @@ suspend fun registrationView(context: PipelineContext<Unit, ApplicationCall>) = 
     UserController.registerUser(credentials.name, credentials.password)
     val token = UserController.loginUser(credentials.name, credentials.password)
     context.call.sessions.set(UserSession(token))
-    context.call.respond(mapOf("token" to token))
+    context.call.respondRedirect(Routes.INDEX.path)
 }
 
 suspend fun loginView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
     val credentials = context.call.receiveOrNull<Credentials>() ?: throw InvalidRequestData()
     val token = UserController.loginUser(credentials.name, credentials.password)
     context.call.sessions.set(UserSession(token))
-    context.call.respond(mapOf("token" to token))
+    context.call.respondRedirect(Routes.INDEX.path)
+}
+
+suspend fun logoutView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
+    context.call.sessions.clear("session")
+    context.call.respondRedirect(Routes.INDEX.path)
 }
