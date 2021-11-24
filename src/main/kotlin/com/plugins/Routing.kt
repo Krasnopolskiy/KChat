@@ -13,10 +13,11 @@ fun Application.configureRouting() {
         post("/login") { loginView(this) }
         authenticate("auth-session") {
             route("/room") {
-                post { createRoomView(this) }                    // create new room
-                get("/{name}") {}       // view or enter room
-                put("/{name}") {}       // update room banned
-                delete("/{name}") {}    // delete room
+                post { createRoomView(this) }
+                get("/enter/{code}") { enterRoomView(this) }
+                get("/{code}") { roomView(this) }
+                put("/{code}") {}
+                delete("/{code}") {}
             }
         }
         static("/static") { resources("static") }

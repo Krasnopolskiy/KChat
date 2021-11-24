@@ -3,8 +3,10 @@ package com.controllers
 import com.models.Room
 import com.models.User
 import com.models.UserCredentials
+import com.utils.InvalidCredentialsException
 import com.utils.JWTHandler
 import com.utils.PasswordHadler
+import com.utils.UserNameIsNotFreeException
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.eq
 import org.litote.kmongo.reactivestreams.KMongo
@@ -16,18 +18,15 @@ object UserController {
 
     suspend fun retrieveUser(name: String) = users.findOne(User::name eq name)
 
-    suspend fun addRoom(userName: String, roomName: String) {
-        val user = retrieveUser(userName)!!
-        user.rooms.add(roomName)
-        users.updateOne(User::name eq userName, user)
+    suspend fun addRoom(user: User, room: Room) {
+        user.rooms.add(room.name)
+        users.updateOne(User::name eq user.name, user)
     }
 
     suspend fun registerUser(name: String, password: String) {
         if (retrieveUser(name) != null) throw UserNameIsNotFreeException()
-        User(name).also {
-            users.insertOne(it)
-            credentials.insertOne(UserCredentials(name, PasswordHadler.hashPassword(password)))
-        }
+        users.insertOne(User(name))
+        credentials.insertOne(UserCredentials(name, PasswordHadler.hashPassword(password)))
     }
 
     suspend fun loginUser(name: String, password: String): String {

@@ -1,12 +1,10 @@
 package com.views
 
 import com.UserSession
-import com.controllers.InvalidRequestData
-import com.controllers.MainController
-import com.controllers.UserController
+import com.utils.InvalidRequestData
+import com.controllers.RoomController
+import com.utils.InvalidCodeException
 import com.utils.JWTHandler
-import com.models.Room
-import com.models.User
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -24,9 +22,32 @@ suspend fun createRoomView(context: PipelineContext<Unit, ApplicationCall>) {
     try {
         val roomName = context.call.receiveParameters()["name"] ?: throw InvalidRequestData()
         val userName = getUserName(context.call.sessions)
-        MainController.enterRoom(userName, roomName)
-        context.call.respond("Added")
+        val room = RoomController.createRoom(userName, roomName)
+        context.call.respondRedirect("/room/${room.code}")
     } catch (e: Exception) {
-        context.call.respond(HttpStatusCode.BadRequest, e.message ?: throw e)
+        context.call.respond(HttpStatusCode.BadRequest, e.message ?: "Something went wrong")
+    }
+}
+
+suspend fun enterRoomView(context: PipelineContext<Unit, ApplicationCall>) {
+    try {
+        val code = context.call.parameters["code"] ?: throw InvalidRequestData()
+        val userName = getUserName(context.call.sessions)
+        RoomController.enterRoom(userName, code)
+        context.call.respondRedirect("/room/$code")
+    } catch (e: Exception) {
+        context.call.respond(HttpStatusCode.BadRequest, e.message ?: "Something went wrong")
+    }
+}
+
+suspend fun roomView(context: PipelineContext<Unit, ApplicationCall>) {
+    try {
+        val code = context.call.parameters["code"] ?: throw InvalidRequestData()
+        val userName = getUserName(context.call.sessions)
+        RoomController.retrieveRoom(userName, code)?.also {
+            context.call.respond(it)
+        } ?: throw InvalidCodeException()
+    } catch (e: Exception) {
+        context.call.respond(HttpStatusCode.BadRequest, e.message ?: "Something went wrong")
     }
 }

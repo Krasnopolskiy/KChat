@@ -2,7 +2,7 @@ package com.views
 
 import com.UserSession
 import com.controllers.UserController
-import com.controllers.InvalidRequestData
+import com.utils.InvalidRequestData
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
