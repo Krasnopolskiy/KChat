@@ -1,6 +1,7 @@
 package com
 
-import com.controllers.JWTService
+import com.controllers.UserController
+import com.utils.JWTHandler
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.serialization.json
@@ -14,12 +15,12 @@ import io.ktor.sessions.*
 
 data class UserSession(val token: String) : Principal
 
-fun validateSession(session: UserSession): Principal? {
+suspend fun validateSession(session: UserSession): Principal? {
     return try {
-        val token = JWTService.verifier.verify(session.token)
-        val credential = JWTCredential(token)
-        require(credential.payload.getClaim("user").asString().isNotEmpty())
-        JWTPrincipal(credential.payload)
+        val payload = JWTHandler.getPayload(session.token)
+        val name = payload.getClaim("user").asString()
+        require(UserController.retrieveUser(name) != null)
+        JWTPrincipal(payload)
     } catch (e: Exception) {
         null
     }

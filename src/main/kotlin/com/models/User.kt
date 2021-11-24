@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class User(val name: String) {
-    val rooms = mutableListOf<Int>()
+    val rooms = mutableSetOf<String>()
 }
