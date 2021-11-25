@@ -22,6 +22,13 @@ suspend fun indexView(context: PipelineContext<Unit, ApplicationCall>) = viewExc
     )
 }
 
+suspend fun homeView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
+    context.call.respondText(
+        context::class.java.classLoader.getResource("home.html")!!.readText(),
+        ContentType.Text.Html
+    )
+}
+
 suspend fun registrationView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
     val credentials = context.call.receiveOrNull<Credentials>() ?: throw InvalidRequestData()
     UserController.registerUser(credentials.name, credentials.password)

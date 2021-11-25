@@ -27,6 +27,7 @@ fun Application.configureRouting() {
         get(Routes.INDEX.path) { indexView(this) }
         post(Routes.REGISTER.path) { registrationView(this) }
         post(Routes.LOGIN.path) { loginView(this) }
+        get(Routes.HOME.path) { homeView(this) }
         authenticate("auth-session") {
             route(Routes.Room.SCOPE.path) {
                 post { createRoomView(this) }
@@ -37,6 +38,6 @@ fun Application.configureRouting() {
             }
             get(Routes.LOGOUT.path) { logoutView(this) }
         }
-        static("/static") { resources("static") }
+        static("/") { resources("") }
     }
 }
