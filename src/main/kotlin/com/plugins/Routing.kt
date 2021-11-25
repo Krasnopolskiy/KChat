@@ -11,6 +11,7 @@ enum class Routes(val path: String) {
     REGISTER("/register"),
     LOGIN("/login"),
     LOGOUT("/logout"),
+    AUTHENTICATE("/authenticate"),
     HOME("/home"),
     CHATS("/chats"),
     UNREAD("/unread");
@@ -25,10 +26,13 @@ enum class Routes(val path: String) {
 fun Application.configureRouting() {
     routing {
         get(Routes.INDEX.path) { indexView(this) }
+        get(Routes.AUTHENTICATE.path) { authenticateView(this) }
         post(Routes.REGISTER.path) { registrationView(this) }
         post(Routes.LOGIN.path) { loginView(this) }
-        get(Routes.HOME.path) { homeView(this) }
         authenticate("auth-session") {
+            get(Routes.HOME.path) { }
+            get(Routes.CHATS.path) { }
+            get(Routes.UNREAD.path) { }
             route(Routes.Room.SCOPE.path) {
                 post { createRoomView(this) }
                 get(Routes.Room.ENTER.path) { enterRoomView(this) }

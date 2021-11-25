@@ -2,7 +2,7 @@
   "name": "kchat-client",
   "version": "1.0.0",
   "description": "Self-hosted websockets chat app, written in Ktor and React",
-  "main": "index.js",
+  "main": "authenticate.js",
   "scripts": {
     "build": "webpack --mode production",
     "start": "webpack-dev-server --open --port 4000 --compress --mode development"

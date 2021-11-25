@@ -22,9 +22,9 @@ suspend fun indexView(context: PipelineContext<Unit, ApplicationCall>) = viewExc
     )
 }
 
-suspend fun homeView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
+suspend fun authenticateView(context: PipelineContext<Unit, ApplicationCall>) = viewExceptionHadler(context) {
     context.call.respondText(
-        context::class.java.classLoader.getResource("home.html")!!.readText(),
+        context::class.java.classLoader.getResource("authenticate.html")!!.readText(),
         ContentType.Text.Html
     )
 }
