@@ -6,40 +6,52 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.content.*
 
+enum class APIRoutes(val path: String) {
+    SCOPE("/api"),
+    REGISTER("/register"),
+    LOGIN("/login");
+
+    enum class Room(val path: String) {
+        SCOPE("/room"),
+        ROOM("/{code}"),
+        ENTER("/enter");
+    }
+}
+
 enum class Routes(val path: String) {
     INDEX("/"),
     REGISTER("/register"),
     LOGIN("/login"),
     LOGOUT("/logout"),
-    AUTHENTICATE("/authenticate"),
     HOME("/home"),
     CHATS("/chats"),
-    UNREAD("/unread");
-
-    enum class Room(val path: String) {
-        SCOPE("/room"),
-        ROOM("/{code}"),
-        ENTER("${ROOM.path}/enter");
-    }
+    UNREAD("/unread"),
+    ROOM("/room")
 }
 
 fun Application.configureRouting() {
     routing {
-        get(Routes.INDEX.path) { indexView(this) }
-        get(Routes.AUTHENTICATE.path) { authenticateView(this) }
-        post(Routes.REGISTER.path) { registrationView(this) }
-        post(Routes.LOGIN.path) { loginView(this) }
+        route(APIRoutes.SCOPE.path) {
+            post(APIRoutes.REGISTER.path) { registrationView(this) }
+            post(APIRoutes.LOGIN.path) { loginView(this) }
+            authenticate("auth-session") {
+                route(APIRoutes.Room.SCOPE.path) {
+                    post { createRoomView(this) }
+                    get(APIRoutes.Room.ENTER.path) { enterRoomView(this) }
+                    get(APIRoutes.Room.ROOM.path) { retrieveRoomView(this) }
+                    put(APIRoutes.Room.ROOM.path) { updateRoomView(this) }
+                    delete(APIRoutes.Room.ROOM.path) { deleteRoomView(this) }
+                }
+            }
+        }
+
+        get(Routes.INDEX.path) { indexPageView(this) }
+        get(Routes.LOGIN.path) { loginPageView(this) }
+        get(Routes.REGISTER.path) { registerPageView(this) }
         authenticate("auth-session") {
-            get(Routes.HOME.path) { }
+            get(Routes.HOME.path) { homePageView(this) }
             get(Routes.CHATS.path) { }
             get(Routes.UNREAD.path) { }
-            route(Routes.Room.SCOPE.path) {
-                post { createRoomView(this) }
-                get(Routes.Room.ENTER.path) { enterRoomView(this) }
-                get(Routes.Room.ROOM.path) { retrieveRoomView(this) }
-                put(Routes.Room.ROOM.path) { updateRoomView(this) }
-                delete(Routes.Room.ROOM.path) { deleteRoomView(this) }
-            }
             get(Routes.LOGOUT.path) { logoutView(this) }
         }
         static("/") { resources("") }

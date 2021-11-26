@@ -28,9 +28,7 @@ suspend fun validateSession(session: UserSession): Principal? {
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        install(ContentNegotiation) {
-            json()
-        }
+        install(ContentNegotiation) { json() }
 
         install(Sessions) { cookie<UserSession>("session") }
 
