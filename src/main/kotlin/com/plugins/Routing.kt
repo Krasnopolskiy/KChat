@@ -55,7 +55,7 @@ fun Application.configureRouting() {
         authenticate("auth-session") {
             get(Routes.HOME.path) { homePageView(this) }
             get(Routes.ROOMS.path) { roomsView(this) }
-            get(Routes.UNREAD.path) { }
+            get(Routes.ROOM.path) { roomView(this) }
             get(Routes.LOGOUT.path) { logoutView(this) }
         }
         static("/") { resources("") }

@@ -43,6 +43,12 @@ suspend fun roomsView(context: PipelineContext<Unit, ApplicationCall>) =
         ContentType.Text.Html
     )
 
+suspend fun roomView(context: PipelineContext<Unit, ApplicationCall>) =
+    context.call.respondText(
+        context::class.java.classLoader.getResource("room.html")!!.readText(),
+        ContentType.Text.Html
+    )
+
 suspend fun logoutView(context: PipelineContext<Unit, ApplicationCall>) {
     context.call.sessions.clear("session")
     context.call.respondRedirect(Routes.INDEX.path)

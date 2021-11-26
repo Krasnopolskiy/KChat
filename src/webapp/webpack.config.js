@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const {resolve} = require("path");
 
-const pages = ['error', 'index', 'login', 'register', 'home', 'rooms']
+const pages = ['error', 'index', 'login', 'register', 'home', 'rooms', 'room']
 
 module.exports = {
     devtool: 'cheap-module-source-map',
