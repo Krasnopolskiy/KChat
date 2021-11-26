@@ -5,7 +5,7 @@ import {CssBaseline, Grid, Stack, TextField, Typography} from "@mui/material";
 import {ContentBoxFluid} from "./components/ContentBoxes";
 
 const CredentialsForm = () =>
-    <form action={"/api/register"} method={"post"}>
+    <form action={"/register"} method={"post"}>
         <Stack gap={3} padding={2}>
             <TextField name="name" label="Name" variant="filled"/>
             <TextField name="password" label="Password" type={"password"} variant="filled"/>

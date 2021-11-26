@@ -1,6 +1,7 @@
 package com.controllers
 
 import com.models.Room
+import com.models.User
 import com.utils.*
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.eq
@@ -17,12 +18,21 @@ object RoomController {
             if (userName !in users) throw UserNotInRoomException()
         }
 
+    suspend fun retrieveRoomPreview(userName: String) =
+        UserController.retrieveUser(userName)!!.rooms.map {
+            val room = retrieveRoom(it)!!
+            hashMapOf(
+                "code" to room.code,
+                "name" to room.name
+            )
+        }
+
     suspend fun createRoom(userName: String, roomName: String): Room {
         val code = TokenGenerator.generateHexToken(roomName.hashCode(), 3)
         if (retrieveRoom(code) != null) throw RoomNameIsNotFreeException()
         val room = Room(userName, roomName)
         rooms.insertOne(room)
-        UserController.addRoom(userName, roomName)
+        UserController.addRoom(userName, room.code)
         return room
     }
 
@@ -37,7 +47,7 @@ object RoomController {
             if (userName in banned) throw UserWasBannedException()
         } ?: throw InvalidCodeException()
         addUser(userName, room.code)
-        UserController.addRoom(userName, room.name)
+        UserController.addRoom(userName, room.code)
     }
 
     suspend fun banUser(userName: String, subjectName: String, code: String) {
@@ -47,7 +57,7 @@ object RoomController {
             room.users -= subjectName
             room.banned += subjectName
             rooms.updateOne(Room::name eq room.name, room)
-            UserController.removeRoom(subjectName, room.name)
+            UserController.removeRoom(subjectName, room.code)
         }
     }
 
@@ -58,7 +68,7 @@ object RoomController {
             room.users += subjectName
             room.banned -= subjectName
             rooms.updateOne(Room::name eq room.name, room)
-            UserController.addRoom(subjectName, room.name)
+            UserController.addRoom(subjectName, room.code)
         }
     }
 

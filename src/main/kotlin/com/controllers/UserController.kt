@@ -1,6 +1,5 @@
 package com.controllers
 
-import com.models.Room
 import com.models.User
 import com.models.UserCredentials
 import com.utils.InvalidCredentialsException
@@ -18,15 +17,15 @@ object UserController {
 
     suspend fun retrieveUser(name: String) = users.findOne(User::name eq name)
 
-    suspend fun addRoom(userName: String, roomName: String) {
+    suspend fun addRoom(userName: String, roomCode: String) {
         val user = retrieveUser(userName)!!
-        user.rooms += roomName
+        user.rooms += roomCode
         users.updateOne(User::name eq userName, user)
     }
 
-    suspend fun removeRoom(userName: String, roomName: String) {
+    suspend fun removeRoom(userName: String, roomCode: String) {
         val user = retrieveUser(userName)!!
-        user.rooms -= roomName
+        user.rooms -= roomCode
         users.updateOne(User::name eq userName, user)
     }
 

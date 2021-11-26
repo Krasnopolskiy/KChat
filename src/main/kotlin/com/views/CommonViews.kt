@@ -6,7 +6,12 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.sessions.*
 import io.ktor.util.pipeline.*
-import kotlinx.serialization.Serializable
+
+suspend fun errorPageView(context: PipelineContext<Unit, ApplicationCall>) =
+    context.call.respondText(
+        context::class.java.classLoader.getResource("error.html")!!.readText(),
+        ContentType.Text.Html
+    )
 
 suspend fun indexPageView(context: PipelineContext<Unit, ApplicationCall>) =
     context.call.respondText(
@@ -29,6 +34,12 @@ suspend fun loginPageView(context: PipelineContext<Unit, ApplicationCall>) =
 suspend fun registerPageView(context: PipelineContext<Unit, ApplicationCall>) =
     context.call.respondText(
         context::class.java.classLoader.getResource("register.html")!!.readText(),
+        ContentType.Text.Html
+    )
+
+suspend fun roomsView(context: PipelineContext<Unit, ApplicationCall>) =
+    context.call.respondText(
+        context::class.java.classLoader.getResource("rooms.html")!!.readText(),
         ContentType.Text.Html
     )
 

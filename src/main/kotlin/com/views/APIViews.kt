@@ -1,5 +1,6 @@
 package com.views
 
+import com.ErrorMessage
 import com.UserSession
 import com.utils.InvalidRequestData
 import com.controllers.RoomController
@@ -8,21 +9,18 @@ import com.plugins.Routes
 import com.utils.InvalidCodeException
 import com.utils.JWTHandler
 import io.ktor.application.*
-import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
-import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 suspend inline fun wrapAPIView(context: PipelineContext<Unit, ApplicationCall>, function: () -> Unit) {
     try {
         function()
     } catch (e: Exception) {
-        context.call.respondText(e.message ?: "Something went wrong")
+        context.call.sessions.set(ErrorMessage(e.message ?: "Something went wrong"))
+        context.call.respondRedirect(Routes.ERROR.path)
     }
 }
 
@@ -68,11 +66,17 @@ suspend fun enterRoomView(context: PipelineContext<Unit, ApplicationCall>) = wra
     context.call.respondRedirect("${Routes.ROOM.path}/${code}")
 }
 
+suspend fun retrieveUserView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
+    val userName = getUserName(context.call.sessions)
+    val user = UserController.retrieveUser(userName)!!
+    context.call.respond(hashMapOf("user" to user, "rooms" to RoomController.retrieveRoomPreview(userName)))
+}
+
 suspend fun retrieveRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val code = context.call.parameters["code"] ?: throw InvalidRequestData()
     val userName = getUserName(context.call.sessions)
     val room = RoomController.retrieveRoom(userName, code) ?: throw InvalidCodeException()
-    context.call.respond(hashMapOf("success" to true.toString(), "room" to Json.encodeToString(room)))
+    context.call.respond(hashMapOf("room" to room))
 }
 
 suspend fun updateRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
@@ -82,7 +86,7 @@ suspend fun updateRoomView(context: PipelineContext<Unit, ApplicationCall>) = wr
     banList.forEach { RoomController.banUser(userName, it, code) }
     unbanList.forEach { RoomController.unbanUser(userName, it, code) }
     val room = RoomController.retrieveRoom(userName, code)
-    context.call.respond(hashMapOf("success" to true.toString(), "room" to Json.encodeToString(room)))
+    context.call.respond(hashMapOf("room" to room))
 }
 
 suspend fun deleteRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {

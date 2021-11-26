@@ -10,10 +10,13 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.sessions.*
 
-data class UserSession(val token: String) : Principal
+data class ErrorMessage(val message: String)
+data class UserSession(val token: String)
 
 suspend fun validateSession(session: UserSession): Principal? {
     return try {
@@ -28,9 +31,18 @@ suspend fun validateSession(session: UserSession): Principal? {
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        install(ContentNegotiation) { json() }
+        install(ContentNegotiation) { jackson() }
 
-        install(Sessions) { cookie<UserSession>("session") }
+        install(CORS) {
+            // TODO DEVELOPMENT-ONLY
+            host("localhost:3000")
+            allowCredentials = true
+        }
+
+        install(Sessions) {
+            cookie<UserSession>("session") { cookie.httpOnly = false }
+            cookie<ErrorMessage>("error") { cookie.httpOnly = false }
+        }
 
         install(Authentication) {
             session<UserSession>("auth-session") {

@@ -2,17 +2,16 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import {
     Button,
-    Container, DialogActions,
+    DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Grid,
     Stack, TextField,
     Typography
 } from "@mui/material";
 import {ContentBoxFluid, ContentBoxWrap} from "./components/ContentBoxes";
-import {Sidebar} from "./components/Sidebar";
 import {AlertDialog} from "./components/AlertDialog";
+import {AppContainer} from "./components/AppContainer";
 
 
 class HomePage extends React.Component {
@@ -27,7 +26,7 @@ class HomePage extends React.Component {
 
     handleJoinDialogClose = () => this.joinAlertDialog.current.handleClose()
 
-    joinDialog = () => (
+    JoinDialog = () => (
         <AlertDialog ref={this.joinAlertDialog}>
             <DialogTitle id="alert-dialog-title">
                 Join existing room
@@ -42,7 +41,7 @@ class HomePage extends React.Component {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleJoinDialogClose}>Cancel</Button>
-                    <Button type={"submit"}>Join</Button>
+                    <Button type={"submit"} variant={"contained"}>Join</Button>
                 </DialogActions>
             </form>
         </AlertDialog>
@@ -52,7 +51,7 @@ class HomePage extends React.Component {
 
     handleCreateDialogClose = () => this.createAlertDialog.current.handleClose()
 
-    createDialog = () => (
+    CreateDialog = () => (
         <AlertDialog ref={this.createAlertDialog}>
             <DialogTitle id="alert-dialog-title">
                 Create new room
@@ -67,38 +66,33 @@ class HomePage extends React.Component {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleCreateDialogClose}>Cancel</Button>
-                    <Button type={"submit"}>Create</Button>
+                    <Button type={"submit"} variant={"contained"}>Create</Button>
                 </DialogActions>
             </form>
         </AlertDialog>
     )
 
-    render() {
-        return <div>
-            <this.joinDialog/>
-            <this.createDialog/>
-            <Grid container padding={2}>
-                <Grid item xs={2}><Sidebar/></Grid>
-                <Grid item xs={10}>
-                    <Container>
-                        <Stack gap={4}>
-                            <ContentBoxFluid padding={4}>
-                                <Typography variant={"h2"} textAlign={"center"}>Welcome, username</Typography>
-                            </ContentBoxFluid>
-                            <ContentBoxWrap>
-                                <Stack direction={"row"} gap={2}>
-                                    <Button variant={"contained"} size={"large"}
-                                            onClick={this.handleJoinDialogOpen}>Join room</Button>
-                                    <Button variant={"contained"} size={"large"}
-                                            onClick={this.handleCreateDialogOpen}>Create room</Button>
-                                </Stack>
-                            </ContentBoxWrap>
+    render = () => (
+        <React.Fragment>
+            <this.JoinDialog/>
+            <this.CreateDialog/>
+            <AppContainer>
+                <Stack gap={4}>
+                    <ContentBoxFluid padding={4}>
+                        <Typography variant={"h2"} textAlign={"center"}>Welcome to KChat!</Typography>
+                    </ContentBoxFluid>
+                    <ContentBoxWrap>
+                        <Stack direction={"row"} gap={2}>
+                            <Button variant={"contained"} size={"large"}
+                                    onClick={this.handleJoinDialogOpen}>Join room</Button>
+                            <Button variant={"contained"} size={"large"}
+                                    onClick={this.handleCreateDialogOpen}>Create room</Button>
                         </Stack>
-                    </Container>
-                </Grid>
-            </Grid>
-        </div>
-    }
+                    </ContentBoxWrap>
+                </Stack>
+            </AppContainer>
+        </React.Fragment>
+    )
 }
 
 
