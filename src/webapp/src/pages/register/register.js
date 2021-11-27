@@ -2,7 +2,7 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import Button from '@mui/material/Button';
 import {CssBaseline, Grid, Stack, TextField, Typography} from "@mui/material";
-import {ContentBoxFluid} from "./components/ContentBoxes";
+import {ContentBoxFluid} from "../../components/ContentBoxes";
 
 const CredentialsForm = () =>
     <form action={"/register"} method={"post"}>

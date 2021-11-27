@@ -34,7 +34,7 @@ export class Sidebar extends React.Component {
 
     StringAvatar = () =>
         <Avatar sx={{bgcolor: this.stringToColor(this.username), color: '#fff'}}>
-            {this.username.split(' ').slice(0, 2).map(el => el[0]).join('')}
+            {this.username.split(' ').slice(0, 2).map(el => el[0].toUpperCase()).join('')}
         </Avatar>
 
     render = () => (

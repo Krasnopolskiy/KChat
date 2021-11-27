@@ -1,12 +1,16 @@
 package com.plugins
 
+import com.views.roomSocketView
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import java.time.*
 import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
+import io.ktor.auth.*
 import io.ktor.routing.*
+
+enum class WebSocketRoutes(val path: String) {
+    CHAT("/room/{code}/chat")
+}
 
 fun Application.configureSockets() {
     install(WebSockets) {
@@ -17,19 +21,8 @@ fun Application.configureSockets() {
     }
 
     routing {
-        webSocket("/") { // websocketSession
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        outgoing.send(Frame.Text("YOU SAID: $text"))
-                        if (text.equals("bye", ignoreCase = true)) {
-                            close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
-                        }
-                    }
-                    else -> continue
-                }
-            }
+        authenticate("auth-session") {
+            webSocket(WebSocketRoutes.CHAT.path) { roomSocketView(this) }
         }
     }
 }

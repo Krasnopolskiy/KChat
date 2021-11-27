@@ -1,11 +1,11 @@
 package com.views
 
-import com.ErrorMessage
-import com.UserSession
 import com.utils.InvalidRequestData
 import com.controllers.RoomController
 import com.controllers.UserController
+import com.plugins.APIRoutes
 import com.plugins.Routes
+import com.plugins.UserSession
 import com.utils.InvalidCodeException
 import com.utils.JWTHandler
 import io.ktor.application.*
@@ -19,8 +19,7 @@ suspend inline fun wrapAPIView(context: PipelineContext<Unit, ApplicationCall>, 
     try {
         function()
     } catch (e: Exception) {
-        context.call.sessions.set(ErrorMessage(e.message ?: "Something went wrong"))
-        context.call.respondRedirect(Routes.ERROR.path)
+        context.call.respond(hashMapOf("error" to (e.message ?: "Something went wrong")))
     }
 }
 
@@ -33,37 +32,18 @@ fun getUserName(sessions: CurrentSession): String {
     return payload.getClaim("user").asString()
 }
 
-suspend fun registrationView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
-    val parameters = context.call.receiveParameters()
-    val name = parameters["name"] ?: throw InvalidRequestData()
-    val password = parameters["password"] ?: throw InvalidRequestData()
-    UserController.registerUser(name, password)
-    val token = UserController.loginUser(name, password)
-    context.call.sessions.set(UserSession(token))
-    context.call.respondRedirect(Routes.HOME.path)
-}
-
-suspend fun loginView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
-    val parameters = context.call.receiveParameters()
-    val name = parameters["name"] ?: throw InvalidRequestData()
-    val password = parameters["password"] ?: throw InvalidRequestData()
-    val token = UserController.loginUser(name, password)
-    context.call.sessions.set(UserSession(token))
-    context.call.respondRedirect(Routes.HOME.path)
-}
-
 suspend fun createRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val roomName = context.call.receiveParameters()["name"] ?: throw InvalidRequestData()
     val userName = getUserName(context.call.sessions)
     val room = RoomController.createRoom(userName, roomName)
-    context.call.respondRedirect("${Routes.ROOM.path}/${room.code}")
+    context.call.respondRedirect("${APIRoutes.Room.SCOPE.path}/${room.code}")
 }
 
 suspend fun enterRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val code = context.call.request.queryParameters["code"] ?: throw InvalidRequestData()
     val userName = getUserName(context.call.sessions)
     RoomController.enterRoom(userName, code)
-    context.call.respondRedirect("${Routes.ROOM.path}/${code}")
+    context.call.respondRedirect("${APIRoutes.Room.SCOPE.path}/${code}")
 }
 
 suspend fun retrieveUserView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {

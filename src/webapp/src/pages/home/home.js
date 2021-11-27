@@ -9,9 +9,9 @@ import {
     Stack, TextField,
     Typography
 } from "@mui/material";
-import {ContentBoxFluid, ContentBoxWrap} from "./components/ContentBoxes";
+import {ContentBoxFluid, ContentBoxWrap} from "../../components/ContentBoxes";
 import {AlertDialog} from "./components/AlertDialog";
-import {AppContainer} from "./components/AppContainer";
+import {AppContainer} from "../../components/AppContainer";
 
 
 class HomePage extends React.Component {

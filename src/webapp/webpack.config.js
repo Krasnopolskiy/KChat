@@ -1,14 +1,15 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const {resolve} = require("path");
+const fs = require("fs")
 
-const pages = ['error', 'index', 'login', 'register', 'home', 'rooms', 'room']
+const pages = fs.readdirSync('./src/pages/')
 
 module.exports = {
     devtool: 'cheap-module-source-map',
-    entry: pages.reduce((a, v) => ({...a, [v]: resolve(__dirname, 'src', `${v}.js`)}), {}),
+    entry: pages.reduce((a, v) => ({...a, [v]: resolve(__dirname, 'src', 'pages', v, `${v}.js`)}), {}),
     output: {
         path: resolve(__dirname, 'build'),
-        filename: '[name].bundle.js'
+        filename: 'assets/[name].bundle.js'
     },
     module: {
         rules: [
@@ -17,9 +18,10 @@ module.exports = {
     },
     plugins: pages.map(page =>
         new HtmlWebpackPlugin({
-            chunks: ["common", page],
+            chunks: [page],
             filename: `${page}.html`,
             template: "./templates/template.html",
+            publicPath: "/static/"
         })
     )
 }

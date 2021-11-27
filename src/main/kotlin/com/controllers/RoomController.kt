@@ -1,5 +1,6 @@
 package com.controllers
 
+import com.models.Message
 import com.models.Room
 import com.models.User
 import com.utils.*
@@ -77,5 +78,10 @@ object RoomController {
         if (userName != room.creator) throw UserHasNoRightException()
         room.users.forEach { UserController.removeRoom(it, room.name) }
         rooms.deleteOne(Room::name eq room.name)
+    }
+
+    suspend fun sendMessage(user: User, room: Room, text: String) {
+        room.messages += Message(user.name, text)
+        rooms.updateOne(Room::name eq room.name, room)
     }
 }

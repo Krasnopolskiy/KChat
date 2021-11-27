@@ -1,8 +1,8 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import {Box, Container, Grid, Skeleton, Typography} from "@mui/material";
-import {ContentBoxFluid} from "./components/ContentBoxes";
-import {Sidebar} from "./components/Sidebar";
+import {ContentBoxFluid} from "../../components/ContentBoxes";
+import {Sidebar} from "../../components/Sidebar";
 import {RoomCard} from "./components/RoomCard";
 import axios from "axios";
 
@@ -17,7 +17,6 @@ class RoomsPage extends React.Component {
                 this.username = res.data.user.name
                 this.rooms = res.data.rooms
                 this.setState({loaded: true})
-                console.log('received')
             })
     }
 

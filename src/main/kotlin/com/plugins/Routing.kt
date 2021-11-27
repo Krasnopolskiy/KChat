@@ -28,16 +28,14 @@ enum class Routes(val path: String) {
     HOME("/home"),
     ROOMS("/rooms"),
     UNREAD("/unread"),
-    ROOM("/room")
+    ROOM("/room/{code}")
 }
 
 fun Application.configureRouting() {
     routing {
-        post(APIRoutes.LOGIN.path) { loginView(this) }
-        post(APIRoutes.REGISTER.path) { registrationView(this) }
-        route(APIRoutes.SCOPE.path) {
-            get(APIRoutes.USER.path) { retrieveUserView(this) }
-            authenticate("auth-session") {
+        authenticate("auth-session") {
+            route(APIRoutes.SCOPE.path) {
+                get(APIRoutes.USER.path) { retrieveUserView(this) }
                 route(APIRoutes.Room.SCOPE.path) {
                     post { createRoomView(this) }
                     get(APIRoutes.Room.ENTER.path) { enterRoomView(this) }
@@ -51,13 +49,15 @@ fun Application.configureRouting() {
         get(Routes.ERROR.path) { errorPageView(this) }
         get(Routes.INDEX.path) { indexPageView(this) }
         get(Routes.LOGIN.path) { loginPageView(this) }
+        post(APIRoutes.LOGIN.path) { loginView(this) }
         get(Routes.REGISTER.path) { registerPageView(this) }
+        post(APIRoutes.REGISTER.path) { registrationView(this) }
         authenticate("auth-session") {
             get(Routes.HOME.path) { homePageView(this) }
             get(Routes.ROOMS.path) { roomsView(this) }
             get(Routes.ROOM.path) { roomView(this) }
             get(Routes.LOGOUT.path) { logoutView(this) }
         }
-        static("/") { resources("") }
+        static("/static") { resources("") }
     }
 }

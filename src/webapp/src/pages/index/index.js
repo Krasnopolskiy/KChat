@@ -2,7 +2,7 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import Button from '@mui/material/Button';
 import {CssBaseline, Grid, Typography} from "@mui/material";
-import {ContentBoxWrap} from "./components/ContentBoxes";
+import {ContentBoxWrap} from "../../components/ContentBoxes";
 
 const IndexPage = () =>
     <React.Fragment>
