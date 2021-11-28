@@ -4,10 +4,10 @@ import {ContentBoxWrap} from '../../../components/ContentBoxes'
 import {ChipWithAvatar} from '../../../components/StringAvatar'
 
 
-export const Message = ({justifyContent, author, text}) =>
-    <Box display={'flex'} justifyContent={justifyContent || 'left'}>
+export const Message = ({author, text}) =>
+    <Box display={'flex'}>
         <ContentBoxWrap padding={1}>
-            <Stack direction={'row'} gap={2} alignItems={'center'} paddingRight={2}>
+            <Stack direction={'row'} gap={2} paddingRight={2}>
                 <ChipWithAvatar name={author}/>
                 <Typography>{text}</Typography>
             </Stack>
