@@ -1,22 +1,30 @@
-import * as React from 'react';
-import ReactDOM from 'react-dom';
-import {Grid, Stack, Typography} from "@mui/material";
-import {ContentBoxWrap} from "../../components/ContentBoxes";
-import Cookies from "js-cookie"
-import Button from "@mui/material/Button";
+import * as React from 'react'
+import ReactDOM from 'react-dom'
+import Cookies from 'js-cookie'
+import {Button, Grid, Stack, Typography} from '@mui/material'
+import {ContentBoxWrap} from '../../components/ContentBoxes'
 
-const ErrorPage = () => {
-    const goBack = window.history.back.bind(window.history)
-    let error = Cookies.get("error") || "error=%23sNothing+there"
-    error = error.substring(error.indexOf('%23s') + 4).replace('+', ' ')
-    Cookies.remove("error")
-    return (
-        <Grid container justifyContent={"center"} padding={4}>
+export class ErrorPage extends React.Component{
+    constructor(props) {
+        super(props)
+        this.state = {message: null}
+        this.goBack = window.history.back.bind(window.history)
+    }
+
+    componentDidMount = () => {
+        const cookie = Cookies.get('error') || '%23sNothing there'
+        const message = cookie.substring(cookie.indexOf('%23s') + 4).replace('+', ' ')
+        this.setState({message: message})
+        Cookies.remove('error')
+    }
+
+    render = () => (
+        <Grid container justifyContent={'center'} padding={4}>
             <ContentBoxWrap>
                 <Stack gap={4}>
-                    <Typography variant={"h2"} textAlign={"center"}>An error has occurred</Typography>
-                    <Typography variant={"h4"} color="error.main">{error}</Typography>
-                    <Button variant={"contained"} onClick={goBack}>Go back</Button>
+                    <Typography variant={'h2'} textAlign={'center'}>An error has occurred</Typography>
+                    <Typography variant={'h4'} color='error.main'>{this.state.message}</Typography>
+                    <Button variant={'contained'} onClick={this.goBack}>Go back</Button>
                 </Stack>
             </ContentBoxWrap>
         </Grid>

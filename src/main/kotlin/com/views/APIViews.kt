@@ -1,5 +1,6 @@
 package com.views
 
+import com.controllers.MainController
 import com.utils.InvalidRequestData
 import com.controllers.RoomController
 import com.controllers.UserController
@@ -23,9 +24,6 @@ suspend inline fun wrapAPIView(context: PipelineContext<Unit, ApplicationCall>, 
     }
 }
 
-@Serializable
-data class RoomBlackWhiteList(val ban: List<String> = emptyList(), val unban: List<String> = emptyList())
-
 fun getUserName(sessions: CurrentSession): String {
     val session = sessions.get("session") as UserSession
     val payload = JWTHandler.getPayload(session.token)
@@ -35,43 +33,26 @@ fun getUserName(sessions: CurrentSession): String {
 suspend fun createRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val roomName = context.call.receiveParameters()["name"] ?: throw InvalidRequestData()
     val userName = getUserName(context.call.sessions)
-    val room = RoomController.createRoom(userName, roomName)
+    val room = MainController.createRoom(userName, roomName)
     context.call.respondRedirect("${APIRoutes.Room.SCOPE.path}/${room.code}")
 }
 
 suspend fun enterRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val code = context.call.request.queryParameters["code"] ?: throw InvalidRequestData()
     val userName = getUserName(context.call.sessions)
-    RoomController.enterRoom(userName, code)
+    MainController.enterRoom(userName, code)
     context.call.respondRedirect("${APIRoutes.Room.SCOPE.path}/${code}")
 }
 
 suspend fun retrieveUserView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val userName = getUserName(context.call.sessions)
-    val user = UserController.retrieveUser(userName)!!
-    context.call.respond(hashMapOf("user" to user, "rooms" to RoomController.retrieveRoomPreview(userName)))
+    val user = MainController.retrieveUser(userName)
+    context.call.respond(hashMapOf("user" to user))
 }
 
 suspend fun retrieveRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
     val code = context.call.parameters["code"] ?: throw InvalidRequestData()
     val userName = getUserName(context.call.sessions)
-    val room = RoomController.retrieveRoom(userName, code) ?: throw InvalidCodeException()
+    val room = MainController.retrieveRoom(userName, code)
     context.call.respond(hashMapOf("room" to room))
-}
-
-suspend fun updateRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
-    val code = context.call.parameters["code"] ?: throw InvalidRequestData()
-    val userName = getUserName(context.call.sessions)
-    val (banList, unbanList) = context.call.receive<RoomBlackWhiteList>()
-    banList.forEach { RoomController.banUser(userName, it, code) }
-    unbanList.forEach { RoomController.unbanUser(userName, it, code) }
-    val room = RoomController.retrieveRoom(userName, code)
-    context.call.respond(hashMapOf("room" to room))
-}
-
-suspend fun deleteRoomView(context: PipelineContext<Unit, ApplicationCall>) = wrapAPIView(context) {
-    val code = context.call.parameters["code"] ?: throw InvalidRequestData()
-    val userName = getUserName(context.call.sessions)
-    RoomController.deleteRoom(userName, code)
-    context.call.respondRedirect(Routes.HOME.path)
 }

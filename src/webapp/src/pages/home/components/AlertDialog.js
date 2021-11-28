@@ -1,6 +1,5 @@
-import * as React from 'react';
-
-import {Dialog} from "@mui/material";
+import * as React from 'react'
+import {Dialog} from '@mui/material'
 
 export class AlertDialog extends React.Component {
     constructor(props) {
@@ -8,7 +7,7 @@ export class AlertDialog extends React.Component {
         this.state = {open: false}
     }
 
-    handleClickOpen = () => {
+    handleOpen = () => {
         this.setState({open: true})
     }
 
@@ -20,8 +19,8 @@ export class AlertDialog extends React.Component {
         <Dialog
             open={this.state.open}
             onClose={this.handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description">
+            aria-labelledby='alert-dialog-title'
+            aria-describedby='alert-dialog-description'>
             {this.props.children}
         </Dialog>
     )

@@ -1,5 +1,6 @@
 package com.views
 
+import com.controllers.MainController
 import com.controllers.UserController
 import com.plugins.ErrorMessage
 import com.plugins.Routes
@@ -55,8 +56,8 @@ suspend fun registrationView(context: PipelineContext<Unit, ApplicationCall>) = 
     val parameters = context.call.receiveParameters()
     val name = parameters["name"] ?: throw InvalidRequestData()
     val password = parameters["password"] ?: throw InvalidRequestData()
-    UserController.registerUser(name, password)
-    val token = UserController.loginUser(name, password)
+    MainController.registerUser(name, password)
+    val token = MainController.loginUser(name, password)
     context.call.sessions.set(UserSession(token))
     context.call.respondRedirect(Routes.HOME.path)
 }
@@ -65,7 +66,7 @@ suspend fun loginView(context: PipelineContext<Unit, ApplicationCall>) = wrapVie
     val parameters = context.call.receiveParameters()
     val name = parameters["name"] ?: throw InvalidRequestData()
     val password = parameters["password"] ?: throw InvalidRequestData()
-    val token = UserController.loginUser(name, password)
+    val token = MainController.loginUser(name, password)
     context.call.sessions.set(UserSession(token))
     context.call.respondRedirect(Routes.HOME.path)
 }

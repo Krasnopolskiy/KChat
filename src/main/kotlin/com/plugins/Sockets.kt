@@ -1,6 +1,6 @@
 package com.plugins
 
-import com.views.roomSocketView
+import com.views.SocketHandler
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import java.time.*
@@ -22,7 +22,7 @@ fun Application.configureSockets() {
 
     routing {
         authenticate("auth-session") {
-            webSocket(WebSocketRoutes.CHAT.path) { roomSocketView(this) }
+            webSocket(WebSocketRoutes.CHAT.path) { SocketHandler.roomSocketView(this) }
         }
     }
 }

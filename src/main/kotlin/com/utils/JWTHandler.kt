@@ -12,7 +12,7 @@ object JWTHandler {
     private const val issuer = "GigaNigga"
     private val algorithm = Algorithm.HMAC512(secret)
 
-    val verifier: JWTVerifier = JWT
+    private val verifier: JWTVerifier = JWT
         .require(algorithm)
         .withIssuer(issuer)
         .build()
