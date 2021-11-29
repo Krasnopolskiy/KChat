@@ -33,7 +33,7 @@ object SocketHandler {
 
     private val connections = mutableMapOf<String, MutableSet<Connection>>()
 
-    suspend fun parseSession(webSocketSession: WebSocketServerSession): Pair<User, Room> {
+    private suspend fun parseSession(webSocketSession: WebSocketServerSession): Pair<User, Room> {
         val userName = getUserName(webSocketSession.call.sessions)
         val code = webSocketSession.call.parameters["code"] ?: throw InvalidCodeException()
         val user = MainController.retrieveUser(userName)
@@ -41,7 +41,7 @@ object SocketHandler {
         return Pair(user, room)
     }
 
-    suspend fun connect(session: DefaultWebSocketSession): Connection {
+    private suspend fun connect(session: DefaultWebSocketSession): Connection {
         val (user, room) = parseSession(session as WebSocketServerSession)
         val connection = Connection(session, user, room)
         if (connections[room.code] == null)
@@ -50,8 +50,10 @@ object SocketHandler {
         return connection
     }
 
+    private fun disconnect(connection: Connection) = connections[connection.room.code]?.remove(connection)
+
     private suspend fun broadcast(room: Room, message: Message) {
-        connections[room.code]?.forEach { connection ->
+        connections[room.code]!!.forEach { connection ->
             connection.session.send(Json.encodeToString(message))
         }
     }
@@ -59,11 +61,17 @@ object SocketHandler {
     suspend fun roomSocketView(session: DefaultWebSocketSession) = wrapWebSocket(session) {
         val connection = connect(session)
         connection.room.messages.forEach { message -> session.send(Json.encodeToString(message)) }
-        for (frame in session.incoming) {
-            frame as? Frame.Text ?: continue
-            MainController.addMessage(connection.user, connection.room, frame.readText()).also { message ->
-                broadcast(connection.room, message)
+        try {
+            for (frame in session.incoming) {
+                frame as? Frame.Text ?: continue
+                MainController.addMessage(connection.user, connection.room, frame.readText()).also { message ->
+                    broadcast(connection.room, message)
+                }
             }
+        } catch (e: Exception) {
+            println(e.localizedMessage)
+        } finally {
+            disconnect(connection)
         }
     }
 }
